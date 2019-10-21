@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.regex.Pattern;
+
 import io.realm.Realm;
 import ua.kpi.bis_lab_1.model.User;
 
@@ -45,7 +47,19 @@ public class ChangePassActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (oldPass.getText().toString().equals(user.getPassword())) {
                     if (user.isLimitations()){
-
+                        String pass = newPass.getText().toString();
+                        if (Pattern.compile("[a-zA-Z]").matcher(pass).find() && Pattern.compile("\\p{Punct}").matcher(pass).find() && Pattern.compile("[-+*/()]").matcher(pass).find()){
+                            if (newPass.getText().toString().equals(repPass.getText().toString())){
+                                realm.beginTransaction();
+                                user.setPassword(newPass.getText().toString());
+                                realm.commitTransaction();
+                                finish();
+                            } else {
+                                Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(context, "Password must have letter, punctuation character and math operator", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
                         if (newPass.getText().toString().equals(repPass.getText().toString())){
                             realm.beginTransaction();
